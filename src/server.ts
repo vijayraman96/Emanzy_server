@@ -1,0 +1,60 @@
+import { authenthicated } from './middleware/middleware.authenticated';
+
+import { UserDocument } from './interfaces/auth.interface';
+import dotenv from "dotenv";
+import path from "node:path";
+import express, {Application} from 'express';
+import { Request, Response } from "express";
+import mongoose, { ConnectOptions } from "mongoose";
+import userRoute from './routes/user.routes';
+import bodyParser from "body-parser";
+import cors, { CorsOptions } from 'cors';
+import session from 'express-session';
+import cookieParser from 'cookie-parser';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+import http from 'http'
+
+
+dotenv.config();
+console.log(process.env.GOOGLE_CLIENT_ID);
+
+const mongoUri = process.env.MONGO_URI as string;
+const app: express.Application = express();
+const port = process.env.PORT || 5000;
+
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
+app.use(cookieParser());
+app.use(session({
+  secret: 'emanzy_dress_code',
+  resave: false,
+  saveUninitialized: true
+}));
+const corsOptions: CorsOptions = {
+  origin: 'http://localhost:3000', // Replace with your frontend's origin
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+app.use(cors(corsOptions));
+
+app.get("/", (req: Request, res: Response) => {
+  console.log("fvkfenvklenkenknkern");
+  // res.send("Express + TypeScript Server");
+});
+app.get("/date", (req: Request, res: Response) => {
+  console.log("vijay");
+  res.json("hello vijay ! Welcome  back to the backed ");
+});
+mongoose
+  .connect(mongoUri)
+  .then(() => console.log("MongoDB Connected..."))
+  .catch(err => console.log(err));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use('/auth', userRoute);
+app.listen(port, () => {
+  console.log(`[server]: Server is running at http://localhost:${process.env.PORT}`);
+  console.log(mongoUri);
+  
+});
