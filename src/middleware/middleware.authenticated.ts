@@ -3,6 +3,7 @@ import jwt, { Secret } from "jsonwebtoken";
 
 export const authenthicated = (req: Request, res: Response, next: NextFunction) => {
     let token: string;
+    console.log('req.headers', req.headers);
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
@@ -21,6 +22,7 @@ export const authenthicated = (req: Request, res: Response, next: NextFunction) 
                     console.log('dateNow', dateNow.getTime());
                     let presentDate = (dateNow.getTime() / 1000);
                     console.log('presentDate', presentDate);
+                    res.json({success: token})
                     next();
                 }
             });
@@ -29,5 +31,7 @@ export const authenthicated = (req: Request, res: Response, next: NextFunction) 
             console.log(error, 'error');
             res.status(401).json({ error: 'The server error.Please try again later' });
         }
+    } else {
+        res.status(401).json({ error: 'The server error.Please try again later' });
     }
 }

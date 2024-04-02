@@ -133,11 +133,14 @@ export const signUp = async (
         });
     } else {
       try {
-        const user = new UserModel(value);
+        let finalValue = { ...value, email: email?.toLowerCase() };
+        console.log('finalValue', finalValue);
+
+        const user = new UserModel(finalValue);
         await user.save();
         res.status(201).json({ success: true, data: value });
       } catch (err) {
-        console.log(err, "err");
+        res.status(400).json({ failure: true });
       }
     }
   }
@@ -147,40 +150,78 @@ export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const userExist = await UserModel.findOne({ email });
   console.log("userexist", userExist);
+  const signInSchema = Joi.object({
+    email: Joi.string()
+      .email({
+        minDomainSegments: 2,
+      })
+      .pattern(/^[^\s@]+@[^\s@]+\.(com|net|io|ai)$/)
+      .messages({
+        "string.email": 'The email must contain @ symbol and a valid domain',
+        "string.pattern.base": 'The email domain must end with .com, .net, .io, or .ai',
+        'any.required': 'Email is required'
+      }),
+    password: Joi.string()
+      .min(4)
+      .max(60)
+      .pattern(
+        new RegExp("^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};:'\"<>,./?|`~]*$")
+      )
+      .messages({
+        "string.pattern.base":
+          "Password must contain only alphanumeric and special characters",
+      })
+      .required(),
+  });
 
-  const secretKey: Secret | undefined = process.env.JWT_SECRET_KEY;
-  if (userExist) {
-    let checkedPassword: any;
-    if (password) {
-      let hashedPassword: string = userExist.password as string;
-      // bcrypt.compare(password, hashedPassword, (error: any, success: any) => {
-      //     console.log('error', error, 'success', success);
-      //     if (error) {
-      //         res.status(401).json({ error: "The pasword doesnot match" });
-      //     } else {
-      //         checkedPassword = success;
-      //     }
-      // });
-      const checkedPassword = await bcrypt.compare(password, hashedPassword);
-      console.log(checkedPassword, "checkedPassword");
-      if (!checkedPassword) {
-        res.status(401).json({ error: "The password doesnot match" });
-      }
-      if (secretKey && checkedPassword) {
-        const token = jwt.sign({ _id: userExist._id }, secretKey, {
-          expiresIn: "14d",
-        });
-        console.log("tokken", token);
-        req.session.token = token;
-        console.log("req.session.token", req.session.token);
-        res.json({ success: token });
+  const { error, value } = signInSchema.validate({
+    email,
+    password
+  });
+  console.log('error', error);
+  if (error) {
+    console.log(error.details[0].message);
+    res
+      .status(401)
+      .json({
+        error: `The ${error.details[0].message}. Due to that validation is failed. Please check again`,
+      });
+  } else {
+    const secretKey: Secret | undefined = process.env.JWT_SECRET_KEY;
+    if (userExist) {
+      let checkedPassword: any;
+      if (password) {
+        let hashedPassword: string = userExist.password as string;
+        // bcrypt.compare(password, hashedPassword, (error: any, success: any) => {
+        //     console.log('error', error, 'success', success);
+        //     if (error) {
+        //         res.status(401).json({ error: "The pasword doesnot match" });
+        //     } else {
+        //         checkedPassword = success;
+        //     }
+        // });
+        const checkedPassword = await bcrypt.compare(password, hashedPassword);
+        console.log(checkedPassword, "checkedPassword");
+        if (!checkedPassword) {
+          res.status(401).json({ error: "The password doesnot match" });
+        }
+        if (secretKey && checkedPassword) {
+          const token = jwt.sign({ _id: userExist._id }, secretKey, {
+            expiresIn: "7d",
+          });
+          console.log("tokken", token);
+          req.session.token = token;
+          console.log("req.session.token", req.session.token);
+          res.json({ success: {"token": token} });
+        }
+      } else {
+        res.status(401).json({ error: "There is no passsword" });
       }
     } else {
-      res.status(401).json({ error: "There is no passsword" });
+      res.status(401).json({ error: "The user does not exist" });
     }
-  } else {
-    res.status(401).json({ error: "The user does not exist" });
   }
+
 };
 
 export const addElements = (req: Request, res: Response) => {
