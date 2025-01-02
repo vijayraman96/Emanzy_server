@@ -56,5 +56,8 @@ export type UserDocument= Document & {
     address?: string[],
     family?: FamilyNumber[],
     countryCode?: countryCode,
-    role?: userRole
+    role?: userRole,
+    forgotPasswordToken?: string,
+    deviceId?: string[],
+    multipleDevicesAllow?: boolean
 }

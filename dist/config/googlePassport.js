@@ -1,12 +1,12 @@
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // import passport from "passport";
-import { OAuth2Client } from 'google-auth-library'
+const google_auth_library_1 = require("google-auth-library");
 // import UserModel from "../models/auth.model";
 // import { Strategy as GoogleStrategy } from "passport-google-oauth20";
-const GOOGLE_CLIENT_ID =
-  "886338139374-6cjmhp3ua9949fdjn66indvu405qgf0k.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "886338139374-6cjmhp3ua9949fdjn66indvu405qgf0k.apps.googleusercontent.com";
 const GOOGLE_CLIENT_SECRET = "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";
-const REDIRECT_URL = "http://localhost:5002/auth/google/callback"
+const REDIRECT_URL = "http://localhost:5002/auth/google/callback";
 // export default () => {
 //   passport.use(
 //     new GoogleStrategy(
@@ -41,5 +41,4 @@ const REDIRECT_URL = "http://localhost:5002/auth/google/callback"
 //   );
 //   // Serialize and deserialize user
 // };
-
-const oAuth2Client = new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, REDIRECT_URL);
+const oAuth2Client = new google_auth_library_1.OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, REDIRECT_URL);

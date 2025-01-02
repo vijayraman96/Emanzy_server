@@ -8,6 +8,8 @@ import { OAuth2Client, Credentials } from "google-auth-library";
 import axios from "axios";
 import { SessionData } from "express-session";
 import cookieParser from "cookie-parser";
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 declare module "express-session" {
   interface SessionData {
@@ -81,7 +83,6 @@ export const signUp = async (
 ) => {
   const { userName, email, role, password, firstName, lastName } = req.body;
   const userExist = await UserModel.findOne({ email });
-  console.log("userExist", userExist);
 
   if (userExist) {
     res.status(400).json({ error: "User already exists" });
@@ -134,7 +135,6 @@ export const signUp = async (
     } else {
       try {
         let finalValue = { ...value, email: email?.toLowerCase() };
-        console.log('finalValue', finalValue);
 
         const user = new UserModel(finalValue);
         await user.save();
@@ -149,7 +149,6 @@ export const signUp = async (
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   const userExist = await UserModel.findOne({ email });
-  console.log("userexist", userExist);
   const signInSchema = Joi.object({
     email: Joi.string()
       .email({
@@ -201,7 +200,6 @@ export const login = async (req: Request, res: Response) => {
         //     }
         // });
         const checkedPassword = await bcrypt.compare(password, hashedPassword);
-        console.log(checkedPassword, "checkedPassword");
         if (!checkedPassword) {
           res.status(401).json({ error: "The password doesnot match" });
         }
@@ -252,3 +250,52 @@ export const logOut = (req: Request, res: Response) => {
     console.log("error", error);
   }
 };
+
+export const resetPassword = async(req: Request, res: Response) => {
+  try {
+    const {email} = req.body;
+    console.log("email", email);
+    const user = await UserModel.findOne({email});
+    if(!user) {
+      res.status(400).json({error: 'The user does not exist. So signup '})
+    }
+
+    const createForgetPasswordToken = crypto.randomBytes(32).toString('hex');
+    const tokenExpiry = Date.now() + 10 * 60 * 1000;
+    const secret = "EmanzyForgetPasswordKey";
+
+    //creating the hashing password
+
+    const hashForgotPassword = crypto.createHmac('sha256', secret).update(createForgetPasswordToken).digest('hex');
+    console.log('hashForgotPassword', hashForgotPassword);
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+          user: process.env.GMAIL,
+          pass: process.env.GOOGLE_PASSWORD, // the app password Not your gmail password
+      },
+  });
+
+  const resetUrl = `http://localhost:3000/reset-password?userId=${user?._id}&token=${hashForgotPassword}&expiry=${tokenExpiry}`
+
+  const mailOptions = {
+    to: email,
+    from: process.env.GMAIL,
+    subject: 'Password Reset Request',
+    text: `
+      <p>Hello,</p>
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetUrl}" target="_blank">${resetUrl}</a>
+        <p>This link will expire in 10 minutes.</p>
+    `
+  };
+
+  const successInfo = await transporter.sendMail(mailOptions);
+  res.status(201).json({ success: true })
+  } catch (error) {
+    
+  }
+}

@@ -13,14 +13,17 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import http from 'http'
+import { log } from 'node:console';
 
 
 dotenv.config();
 console.log(process.env.GOOGLE_CLIENT_ID);
 
 const mongoUri = process.env.MONGO_URI as string;
+console.log("mongoUrl", mongoUri);
+
 const app: express.Application = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 2;
 
 // passport.serializeUser(User.serializeUser());
 // passport.deserializeUser(User.deserializeUser());
