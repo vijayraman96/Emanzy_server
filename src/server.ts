@@ -1,19 +1,13 @@
-import { authenthicated } from './middleware/middleware.authenticated';
 
-import { UserDocument } from './interfaces/auth.interface';
 import dotenv from "dotenv";
-import path from "node:path";
-import express, {Application} from 'express';
+import express from 'express';
 import { Request, Response } from "express";
-import mongoose, { ConnectOptions } from "mongoose";
+import mongoose from "mongoose";
 import userRoute from './routes/user.routes';
 import bodyParser from "body-parser";
 import cors, { CorsOptions } from 'cors';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
-import { createProxyMiddleware } from 'http-proxy-middleware';
-import http from 'http'
-import { log } from 'node:console';
 
 
 dotenv.config();
@@ -56,8 +50,12 @@ mongoose
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use('/auth', userRoute);
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${process.env.PORT}`);
-  console.log(mongoUri);
+// app.listen(port, () => {
+//   console.log(`[server]: Server is running at http://localhost:${process.env.PORT}`);
+//   console.log(mongoUri);
   
+// });
+
+app.listen(port, () => {
+  console.log(`Server is running on http://0.0.0.0:${port}`);
 });
