@@ -58,5 +58,6 @@ app.use('/auth', userRoute);
 // });
 
 app.listen(port, () => {
-  console.log(`Server is running on http://0.0.0.0:${port}`);
+  console.log(`Server started on port ${port}`);
+  console.log(`Process ID: ${process.pid}`);
 });
