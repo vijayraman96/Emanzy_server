@@ -28,7 +28,7 @@ app.use(session({
   saveUninitialized: true
 }));
 const corsOptions: CorsOptions = {
-  origin: ['http://localhost:3000', 'http://15.207.107.65:5002'], // Replace with your frontend's origin
+  origin: ['http://localhost:3000', 'http://dashboard.emanzy.shop/'], 
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204,
