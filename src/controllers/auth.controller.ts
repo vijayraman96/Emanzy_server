@@ -140,6 +140,7 @@ export const signUp = async (
         await user.save();
         res.status(201).json({ success: true, data: value });
       } catch (err) {
+        console.error("Error during saving the user:", err); 
         res.status(400).json({ failure: true, err: err });
       }
     }
