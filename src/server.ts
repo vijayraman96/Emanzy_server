@@ -35,6 +35,7 @@ const corsOptions: CorsOptions = {
   optionsSuccessStatus: 204,
 };
 app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); 
 
 app.get("/", (req: Request, res: Response) => {
   console.log("fvkfenvklenkenknkern");
@@ -51,6 +52,7 @@ mongoose
   .catch(err => console.log(err));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
 app.use('/auth', userRoute);
 // app.listen(port, () => {
 //   console.log(`[server]: Server is running at http://localhost:${process.env.PORT}`);
