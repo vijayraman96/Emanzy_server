@@ -146,7 +146,8 @@ export const signUp = async (
   }
   } catch(err) {
     console.error("Error during saving the user:", err); 
-    res.status(400).json({ failure: true, err: err });
+    const error = err as Error;  
+    res.status(400).json({ failure: true, error: error.message });
   }
   
 };
