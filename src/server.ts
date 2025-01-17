@@ -35,12 +35,15 @@ const corsOptions: CorsOptions = {
   optionsSuccessStatus: 204,
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); 
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://dashboard.emanzy.shop"); 
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+app.options('*', cors(corsOptions));
+
+// Additional Middleware (if needed)
+app.use((req, res, next) => {
+  console.log("Request Origin:", req.headers.origin);
+  console.log("Request Method:", req.method);
   next();
 });
+
 
 app.get("/", (req: Request, res: Response) => {
   console.log("fvkfenvklenkenknkern");
