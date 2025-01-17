@@ -81,7 +81,9 @@ export const signUp = async (
   req: Request<{}, {}, UserDocument>,
   res: Response
 ) => {
-  const { userName, email, role, password, firstName, lastName } = req.body;
+
+  try {
+    const { userName, email, role, password, firstName, lastName } = req.body;
   const userExist = await UserModel.findOne({ email });
 
   if (userExist) {
@@ -133,18 +135,20 @@ export const signUp = async (
           error: `The ${error.details[0].message}. Due to that validation is failed. Please check again`,
         });
     } else {
-      try {
+      
         let finalValue = { ...value, email: email?.toLowerCase() };
 
         const user = new UserModel(finalValue);
         await user.save();
         res.status(201).json({ success: true, data: value });
-      } catch (err) {
-        console.error("Error during saving the user:", err); 
-        res.status(400).json({ failure: true, err: err });
-      }
+     
     }
   }
+  } catch(err) {
+    console.error("Error during saving the user:", err); 
+    res.status(400).json({ failure: true, err: err });
+  }
+  
 };
 
 export const login = async (req: Request, res: Response) => {
