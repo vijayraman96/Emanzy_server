@@ -28,7 +28,7 @@ app.use(session({
   saveUninitialized: true
 }));
 const corsOptions: CorsOptions = {
-  origin: ['http://localhost:3000', 'http://dashboard.emanzy.shop'], 
+  origin: ['http://localhost:3002', 'http://dashboard.emanzy.shop'], 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -36,6 +36,11 @@ const corsOptions: CorsOptions = {
 };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); 
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "http://dashboard.emanzy.shop"); 
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 app.get("/", (req: Request, res: Response) => {
   console.log("fvkfenvklenkenknkern");
@@ -52,6 +57,7 @@ mongoose
   .catch(err => console.log(err));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
 
 app.use('/auth', userRoute);
 // app.listen(port, () => {
