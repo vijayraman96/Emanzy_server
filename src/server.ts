@@ -11,16 +11,12 @@ import cookieParser from 'cookie-parser';
 
 
 dotenv.config();
-console.log(process.env.GOOGLE_CLIENT_ID);
 
 const mongoUri = process.env.MONGO_URI as string;
-console.log("mongoUrl", mongoUri);
 
 const app: express.Application = express();
 const port = process.env.PORT || 2;
 
-// passport.serializeUser(User.serializeUser());
-// passport.deserializeUser(User.deserializeUser());
 app.use(cookieParser());
 app.use(session({
   secret: 'emanzy_dress_code',
@@ -46,12 +42,10 @@ app.use((req, res, next) => {
 
 
 app.get("/", (req: Request, res: Response) => {
-  console.log("fvkfenvklenkenknkern");
   res.send("Express + TypeScript Server");
   // res.send("Express + TypeScript Server");
 });
 app.get("/date", (req: Request, res: Response) => {
-  console.log("vijay");
   res.json("hello vijay ! Welcome  back to the backed ");
 });
 mongoose
@@ -63,11 +57,6 @@ app.use(bodyParser.json());
 
 
 app.use('/auth', userRoute);
-// app.listen(port, () => {
-//   console.log(`[server]: Server is running at http://localhost:${process.env.PORT}`);
-//   console.log(mongoUri);
-  
-// });
 
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
