@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title></title>
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --fs-45: 45px;
+      --fs-16: 16px;
+      --fs-14: 14px;
+      --fs-24: 24px;
+      --lh-55: 55px;
+      --lh-24: 24px;
+      --fw-7: 700;
+      --fw-4: 400;
+    }
+
+    * {
+      padding: 0;
+      margin: 0;
+      font-family: "Lato", sans-serif;
+    }
+
+    .bg-sction {
+      background-image: url("./images/bgpattern.svg");
+      width: 100%;
+      height: 120px;
+    }
+
+    .content-ul {
+      list-style-type: disc;
+      margin: 0 0 0 65px;
+    }
+
+    .bg-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      object-fit: cover;
+      height: 120px;
+      z-index: 0;
+    }
+
+    .blue-text {
+      color: #74c3d4;
+      padding: 15px 40px 0 40px;
+      font-weight: 500;
+      font-size: 17px;
+      line-height: 24px;
+    }
+
+    .padding-top-reduced {
+      padding: 0px 40px 15px 40px;
+    }
+
+    .check-text {
+      font-size: 14px;
+      line-height: 24px;
+      text-align: center;
+      color: #757575;
+    }
+
+    .bottom-para {
+      width: 400px;
+      height: auto;
+      margin: 0px auto 15px auto;
+      text-align: center;
+      color: #939393;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+      flex-direction: column;
+    }
+
+    p a span {
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    .text-block {
+      position: relative;
+    }
+
+    .text-block::before {
+      content: "";
+      position: absolute;
+      width: 90%;
+      height: 2px;
+      background-color: #757575;
+      top: 53px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 0;
+    }
+
+    .icon {
+      width: 42px;
+      height: 42px;
+      /* margin: 10px 0; */
+      border-radius: 50%;
+    }
+
+    .icons-container {
+      padding: 10px 40px;
+
+      width: 240px;
+      margin: 0 auto;
+    }
+
+    .icons-container .icon {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .line {
+      width: 90%;
+      height: 2px;
+      background-color: #dddddd;
+      margin: 40px auto 40px auto;
+    }
+
+    .oter-links {
+      color: #939393;
+    }
+
+    .oter-links a {
+      color: #939393;
+      text-decoration: none;
+    }
+
+    .underscore1 {
+      text-decoration: underline;
+      text-decoration-style: dashed;
+      text-decoration-color: #000;
+    }
+
+    .underscore2 {
+      text-decoration: underline;
+      text-decoration-style: dashed;
+      text-decoration-color: #000;
+    }
+
+    .linked-text {
+      text-decoration: underline;
+      text-decoration-color: #254d8f;
+      color: #254d8f;
+      font-size: 16px;
+      line-height: 24px;
+      font-weight: 400;
+    }
+
+    a {
+      cursor: pointer;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body style="background-color: #f3f2f0">
+  <div style="height: 20px; background-color: #f3f2f0"></div>
+  <div id="verify-template" style="
+        max-width: 640px;
+        height: auto;
+        width: 640px;
+        margin: 0 auto;
+        background-color: #fff;
+        overflow: hidden;
+      ">
+    <div style="padding: 16px; gap: 24px; text-align: center">
+      <div class="logo" style="
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            justify-content: center;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            /* margin-bottom: 24px; */
+            padding: 40px 32px 24px 32px;
+          ">
+        <img style="width: 141.47px; height: 42px"
+          src="" />
+      </div>
+    </div>
+
+    <div class="hello-name" style="padding: 0px 64px 40px 64px">
+      <p style="
+            font-family: 'Lato', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+            text-align: center;
+            color: #333333;
+          ">
+        Hi {{userName}},
+      </p>
+
+      <p style="
+            font-family: 'Lato', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+            text-align: center;
+            color: #333333;
+
+            margin-bottom: 16px;
+          ">
+       Welcome to Emanzy Admin Panel! Manage your store effortlessly and stay updated with every order, customer, and inventory detail. Let’s grow Emanzy together!
+        
+      </p>
+      <p>Please click this link to navigate to the Dashboard</p>
+      <a href={{tokenGeneratedLink}}>Go to Dashboard</a>
+      
+      <!-- <div style="text-align: center; margin-bottom: 16px">
+        <a style="
+              font-family: 'Lato', sans-serif;
+              font-size: 16px;
+              font-weight: 500;
+              line-height: 18.75px;
+              letter-spacing: -0.02em;
+              color: #6875de;
+            " href="mailto:<%=support_email%>?subject=<%=mail_subject%>
+         ">
+          <%=support_email%>
+        </a>
+      </div> -->
+      <p style="
+            font-family: 'Lato', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+            text-align: center;
+            color: #333333;
+          ">
+        Cheers,
+      </p>
+      <p style="
+            font-family: 'Lato', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+            text-align: center;
+            color: #333333;
+          ">
+        The Emanzy Team
+      </p>
+    </div>
+    <div style="
+          width: 125px;
+          margin: 0 auto;
+          border: 1px solid #0000003d;
+          opacity: 0.5;
+        "></div>
+    <div style="padding: 10px 32px 64px 32px">
+      <div class="icons-container" style="background-color: transparent; width: 120px">
+        <table border="0" cellspacing="0" cellpadding="0" style="background-color: transparent" bgcolor="transparent">
+          <tr>
+            <td bgcolor="transparent">
+              <div class="icon icon1">
+                <a>
+                  <img
+                    src=""
+                    alt="twitter" title="twitter" style="
+                        width: 24px;
+                        height: 24px;
+
+                        object-fit: cover;
+                      " />
+                  <!-- <div id="linkedin"></div> -->
+                </a>
+              </div>
+            </td>
+            <td bgcolor="transparent">
+              <div class="icon icon2">
+                <a>
+                  <!-- <img
+                    src="https://splendid-document-dev.s3.ap-south-1.amazonaws.com/brand_agreement/17d82244-2bb7-47d4-b76f-7f80fe1f72f5/Image/Facebook-1723877965431.png"
+                    alt="twitter" title="facebook" style="
+                        width: 24px;
+                        height: 24px;
+
+                        object-fit: cover;
+                      " /> -->
+                  <!-- <div id="twitter"></div> -->
+                </a>
+              </div>
+            </td>
+            <td bgcolor="transparent">
+              <div class="icon icon2">
+                <a>
+                  <!-- <img
+                    src="https://splendid-document-dev.s3.ap-south-1.amazonaws.com/brand_agreement/17d82244-2bb7-47d4-b76f-7f80fe1f72f5/Image/LinkedIn-1723878010394.png"
+                    title="linkedIn" style="
+                        width: 24px;
+                        height: 24px;
+
+                        object-fit: cover;
+                      " /> -->
+                </a>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <table width="100%" border="0" cellspacing="0" cellpadding="0" bgcolor="transparent" margin="auto">
+        <tr>
+          <td bgcolor="transparent" align="center">
+            <!-- <img
+              src="https://splendid-document-dev.s3.ap-south-1.amazonaws.com/brand_agreement/ade58963-e406-4121-b735-b70cc3b4cb68/Image/splendidgreylogo.png"
+              style="width: 98.99px; height: 32px" /> -->
+          </td>
+        </tr>
+        <tr>
+          <td align="center">
+            <span style="
+                  color: #999999;
+
+                  padding: 0px 40px;
+
+                  font-family: Inter;
+                  font-size: 12px;
+                  font-weight: 400;
+                  line-height: 16px;
+                  text-align: center;
+                ">Copyright © 2024
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td align="center">
+            <div style="padding: 0px 40px; text-align: center">
+              <a style="
+                    text-decoration: none;
+                    display: inline-block;
+                    color: #999999;
+                    font-family: Inter;
+                    font-size: 12px;
+                    font-weight: 400;
+                    line-height: 16px;
+                  " href="" target="_blank">
+                Splendid.app
+              </a>
+            </div>
+          </td>
+        </tr>
+        <tr style="padding-bottom: 32px">
+          <td align="center">
+            <span style="
+                  color: #999999;
+
+                  font-family: Inter;
+                  font-size: 12px;
+                  font-weight: 400;
+                  line-height: 16px;
+                  text-align: center;
+                ">
+              A better company begins with a personalised employee
+              experience.</span>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <script src="" async defer></script>
+</body>
+
+</html>

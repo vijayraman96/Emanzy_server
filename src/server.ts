@@ -34,9 +34,11 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // Additional Middleware (if needed)
+
 app.use((req, res, next) => {
   console.log("Request Origin:", req.headers.origin);
   console.log("Request Method:", req.method);
+
   next();
 });
 

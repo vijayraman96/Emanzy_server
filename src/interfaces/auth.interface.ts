@@ -36,7 +36,16 @@ export enum userRole {
     Supervisor = 'Supervisor',
     Submanager = 'Submanager',
     Staff = 'Staff',
-    User = 'Sser'
+    User = 'User'
+}
+
+export interface securityToken {
+    signup_token?: string,
+    otp_token?: string,
+    signup_token_created?: Date,
+    crypto_token?: string,
+    iv_token?: string,
+    otp_token_created?: Date
 }
 export type UserDocument= Document & {
     userName: string,
@@ -59,5 +68,7 @@ export type UserDocument= Document & {
     role?: userRole,
     forgotPasswordToken?: string,
     deviceId?: string[],
-    multipleDevicesAllow?: boolean
+    multipleDevicesAllow?: boolean,
+    signupSecurity?: securityToken[]
 }
+
