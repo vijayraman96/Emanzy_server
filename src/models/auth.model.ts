@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-import { UserDocument, Gender, Relation , FamilyNumber, countryCode, userRole } from "../interfaces/auth.interface";
+import { UserDocument, Gender, Relation , FamilyNumber, countryCode, userRole, securityToken } from "../interfaces/auth.interface";
+import { array } from "joi";
 
 const FamilyNumberSchema = new Schema<FamilyNumber>({
     name: {type: String},
@@ -9,7 +10,26 @@ const FamilyNumberSchema = new Schema<FamilyNumber>({
     relation: {type: String, enum: Object.values(Relation)},
     mobile: {type: Number}
 })
-
+const SignupSecuritySchema = new Schema<securityToken>({
+    signup_token: {
+      type: String
+    },
+    signup_token_created: {
+        type: Date
+    },
+    otp_token: {
+      type: String
+    },
+    otp_token_created: {
+        type: Date
+    },
+    crypto_token: {
+        type: String
+    },
+    iv_token: {
+        type: String
+    }
+  });
 const userSchema = new Schema<UserDocument>(
     {
     userName: {type: String, required: true},
@@ -29,7 +49,10 @@ const userSchema = new Schema<UserDocument>(
     address: {type: [String]},
     family: {type: [FamilyNumberSchema]},
     countryCode: {type: String, enum: Object.values(countryCode)},
-    role: {type: String, enum: Object.values(userRole), default: userRole.User}
+    role: {type: String, enum: Object.values(userRole), default: userRole.User},
+    signupSecurity: {
+        type: [SignupSecuritySchema]
+    }
 });
 
 const UserModel = mongoose.model<UserDocument>('User', userSchema);
