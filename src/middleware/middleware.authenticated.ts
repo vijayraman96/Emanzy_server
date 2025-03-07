@@ -1,8 +1,9 @@
 import express, { NextFunction, Request, Response } from "express";
 import jwt, { Secret } from "jsonwebtoken";
 
-export const authenthicated = (req: Request, res: Response, next: NextFunction) => {
+export const authenticated = (req: Request, res: Response, next: NextFunction) => {
     let token: string;
+
     console.log('req.headers', req.headers);
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -10,28 +11,30 @@ export const authenthicated = (req: Request, res: Response, next: NextFunction) 
             token = req.headers.authorization.split(' ')[1];
             console.log('token', token);
 
-            const decryptToken: any = jwt.verify(token, process.env.JWT_SECRET_KEY as Secret, (err) => {
-                if (err) {
-                    if (err.name === "TokenExpiredError") {
-                        res.status(401).json({ error: 'The token is expired. Please log in again' });
-                    } else if (err.name === 'JsonWebTokenError' || err.name === 'NotBeforeError') {
-                        res.status(401).json({ error: 'Invalid token' });
-                    }
-                } else {
-                    var dateNow = new Date();
-                    console.log('dateNow', dateNow.getTime());
-                    let presentDate = (dateNow.getTime() / 1000);
-                    console.log('presentDate', presentDate);
-                    res.json({success: token})
-                    next();
-                }
-            });
+            const decryptToken: any = jwt.verify(token, process.env.JWT_SECRET_KEY as Secret);
 
-        } catch (error) {
-            console.log(error, 'error');
-            res.status(401).json({ error: 'The server error.Please try again later' });
+            if (!decryptToken) {
+                return res.status(401).json({ error: 'Invalid token' });
+            }
+
+            const dateNow = new Date();
+            let presentDate = (dateNow.getTime() / 1000);
+
+            console.log('presentDate', presentDate);
+
+            // Token is valid → Call next()
+            next();  
+        } catch (error: any) {
+            console.error(error);
+            if (error.name === "TokenExpiredError") {
+                return res.status(401).json({ error: 'The token is expired. Please log in again' });
+            } else if (error.name === 'JsonWebTokenError' || error.name === 'NotBeforeError') {
+                return res.status(401).json({ error: 'Invalid token' });
+            }
+
+            return res.status(500).json({ error: 'Server error. Please try again later' });
         }
     } else {
-        res.status(401).json({ error: 'The server error.Please try again later' });
+        return res.status(401).json({ error: 'Authorization header missing' });
     }
-}
+};

@@ -1,21 +1,20 @@
-import express, { Request, Response } from "express";
+import { Request, Response } from "express";
 import UserModel from "../models/auth.model";
 import bcrypt from "bcrypt";
-import Joi, { options } from "joi";
 import { UserDocument } from "../interfaces/auth.interface";
 import jwt, { Secret } from "jsonwebtoken";
-import { OAuth2Client, Credentials } from "google-auth-library";
-import axios from "axios";
-import { SessionData } from "express-session";
-import cookieParser from "cookie-parser";
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import AWS from "aws-sdk"
+import { v4 as uuidv4 } from "uuid"
+import path from 'path';
+import moment from "moment"
+import { HttpCode, ResponseMessage } from "../constant";
+import { cryptoEncrypt, readTemplate } from "../utils/functions";
+import { iv, secretKey } from "../utils/variables";
 
-declare module "express-session" {
-  interface SessionData {
-    token: string;
-  }
-}
+
+
 // const GOOGLE_CLIENT_ID =
 //     "886338139374-6cjmhp3ua9949fdjn66indvu405qgf0k.apps.googleusercontent.com";
 // const GOOGLE_CLIENT_SECRET = "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";
@@ -83,155 +82,127 @@ export const signUp = async (
 ) => {
 
   try {
-    const { userName, email, role, password, firstName, lastName } = req.body;
-  const userExist = await UserModel.findOne({ email });
+    const { userName, email, role, password, firstName, lastName } = req.validatedData!;
+    const userExist = await UserModel.findOne({ email });
 
-  if (userExist) {
-    res.status(400).json({ error: "User already exists" });
-  } else {
-    let passwordHash: string | undefined;
-    if (typeof password === "string") {
-      passwordHash = await bcrypt.hash(password, saltRounds);
-      console.log("passwordHash", passwordHash);
-    }
-
-    const signUpSchema = Joi.object({
-      email: Joi.string()
-        .pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
-        .email({
-          minDomainSegments: 2,
-          tlds: { allow: ["com", "net", "io", "ai"] },
-        }),
-      firstName: Joi.string().alphanum().min(3).max(30).required(),
-      lastName: Joi.string().alphanum().min(3).max(30).required(),
-      role: Joi.string(),
-      password: Joi.string()
-        .min(4)
-        .max(60)
-        .pattern(
-          new RegExp("^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};:'\"<>,./?|`~]*$")
-        )
-        .messages({
-          "string.pattern.base":
-            "Password must contain only alphanumeric and special characters",
-        })
-        .required(),
-      userName: Joi.string().min(4).max(60).alphanum().required(),
-    });
-
-    const { error, value } = signUpSchema.validate({
-      email,
-      firstName,
-      lastName,
-      role,
-      password: passwordHash,
-      userName,
-    });
-    if (error) {
-      console.log("error", error, "value", value);
-      res
-        .status(401)
-        .json({
-          error: `The ${error.details[0].message}. Due to that validation is failed. Please check again`,
-        });
+    if (userExist) {
+      res.status(HttpCode.BAD_REQUEST).json({ error: ResponseMessage.userExist });
     } else {
-      
-        let finalValue = { ...value, email: email?.toLowerCase() };
+      let passwordHash: string | undefined;
+      if (typeof password === "string") {
+        passwordHash = await bcrypt.hash(password, saltRounds);
+      }
 
-        const user = new UserModel(finalValue);
-        await user.save();
-        res.status(201).json({ success: true, data: value });
-     
+      const signupToken = uuidv4();
+
+      const date = moment().format("YYYY-MM-DD HH:mm:ss");
+
+
+      let finalValue = { ...req.validatedData, email: email?.toLowerCase(), signupSecurity: [...[], { signup_token: signupToken }, { signup_token_created: date }, { crypto_token: secretKey }, { iv_token: iv }], password: passwordHash };
+
+      const user = new UserModel(finalValue);
+      const savedUser = await user.save();
+
+      await sendSignupConfirmationEmail(req, res, savedUser);
+      res.status(HttpCode.CREATED).json({ success: true, data: req.validatedData });
+
     }
+  } catch (err) {
+    const error = err as Error;
+    res.status(HttpCode.BAD_REQUEST).json({ failure: true, error: error.message });
   }
-  } catch(err) {
-    console.error("Error during saving the user:", err); 
-    const error = err as Error;  
-    res.status(400).json({ failure: true, error: error.message });
-  }
-  
+
 };
 
-export const login = async (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  const userExist = await UserModel.findOne({ email });
-  const signInSchema = Joi.object({
-    email: Joi.string()
-      .email({
-        minDomainSegments: 2,
-      })
-      .pattern(/^[^\s@]+@[^\s@]+\.(com|net|io|ai)$/)
-      .messages({
-        "string.email": 'The email must contain @ symbol and a valid domain',
-        "string.pattern.base": 'The email domain must end with .com, .net, .io, or .ai',
-        'any.required': 'Email is required'
-      }),
-    password: Joi.string()
-      .min(4)
-      .max(60)
-      .pattern(
-        new RegExp("^[a-zA-Z0-9!@#$%^&*()_+\\-=\\[\\]{};:'\"<>,./?|`~]*$")
-      )
-      .messages({
-        "string.pattern.base":
-          "Password must contain only alphanumeric and special characters",
-      })
-      .required(),
-  });
 
-  const { error, value } = signInSchema.validate({
-    email,
-    password
-  });
-  console.log('error', error);
-  if (error) {
-    console.log(error.details[0].message);
-    res
-      .status(401)
-      .json({
-        error: `The ${error.details[0].message}. Due to that validation is failed. Please check again`,
-      });
-  } else {
-    const secretKey: Secret | undefined = process.env.JWT_SECRET_KEY;
-    if (userExist) {
-      let checkedPassword: any;
-      if (password) {
-        let hashedPassword: string = userExist.password as string;
-        // bcrypt.compare(password, hashedPassword, (error: any, success: any) => {
-        //     console.log('error', error, 'success', success);
-        //     if (error) {
-        //         res.status(401).json({ error: "The pasword doesnot match" });
-        //     } else {
-        //         checkedPassword = success;
-        //     }
-        // });
-        const checkedPassword = await bcrypt.compare(password, hashedPassword);
-        if (!checkedPassword) {
-          res.status(401).json({ error: "The password doesnot match" });
-        }
-        if (secretKey && checkedPassword) {
-          const token = jwt.sign({ _id: userExist._id }, secretKey, {
-            expiresIn: "7d",
-          });
-          console.log("tokken", token);
-          req.session.token = token;
-          console.log("req.session.token", req.session.token);
-          res.json({ success: {"token": token} });
-        }
-      } else {
-        res.status(401).json({ error: "There is no passsword" });
+AWS.config.update({
+  region: 'ap-south-1', 
+  accessKeyId: process.env.IAM_USER_ACCESS_KEY, 
+  secretAccessKey: process.env.IAM_SECRET_ACCESS_KEY 
+});
+
+const ses = new AWS.SES();
+const sendSignupConfirmationEmail = async (req: Request, res: Response, data: any) => {
+  try {
+    const { email, userName, signupSecurity, _id } = data;
+
+
+    if (!email || !userName) {
+      return res.status(HttpCode.BAD_REQUEST).json({ error: ResponseMessage.emailAndPassRequired });
+    }
+
+    const encodedUserId = cryptoEncrypt(`${_id}`);
+    const encodedToken = cryptoEncrypt(signupSecurity[0]?.signup_token);
+    const tokenGeneratedLink = `${process.env.FRONTEND_PORT}/admin/?z1=${encodedUserId}&a5=${encodedToken}`;
+
+    const tokenData = { ...data, tokenGeneratedLink };
+
+    const htmlContent = readTemplate(path.join(__dirname, '../templates/signupSuccessEmail.html'), tokenData);
+    const params = {
+      Source: 'admin@emanzy.shop',
+      Destination: {
+        ToAddresses: [email], // Recipient email address
+      },
+      Message: {
+        Subject: {
+          Data: "A Hearty welcome to the Admin Group", // Email subject
+        },
+        Body: {
+          Text: {
+            Data: "",
+          },
+          Html: {
+            Data: htmlContent,
+          },
+        },
+      },
+    };
+
+    ses.sendEmail(params, (err, data) => {
+      if (err) console.error(ResponseMessage.errroSendingMail, err);
+    });
+  } catch (err) {
+
+    res.status(500).send(ResponseMessage.errroSendingMail);
+  }
+
+}
+export const login = async (req: Request, res: Response) => {
+
+  const { email, password } = req.validatedData!;
+  const userExist = await UserModel.findOne({ email });
+
+  const secretKey: Secret | undefined = process.env.JWT_SECRET_KEY;
+  if (userExist) {
+    let checkedPassword: any;
+    if (password) {
+      let hashedPassword: string = userExist.password as string;
+
+      const checkedPassword = await bcrypt.compare(password, hashedPassword);
+      if (!checkedPassword) {
+        res.status(HttpCode.BAD_REQUEST).json({ error: ResponseMessage.passwordDoesNotMatch });
+      }
+      if (secretKey && checkedPassword) {
+        const token = jwt.sign({ _id: userExist._id }, secretKey, {
+          expiresIn: "7d",
+        });
+        req.session.token = token;
+        res.json({ success: { "token": token } });
       }
     } else {
-      res.status(401).json({ error: "The user does not exist" });
+      res.status(HttpCode.UN_AUTHORIZED).json({ error: ResponseMessage.passwordDoesNotExist });
     }
+  } else {
+    res.status(HttpCode.UN_AUTHORIZED).json({ error: ResponseMessage.userNotFound });
   }
+
 
 };
 
 export const addElements = (req: Request, res: Response) => {
   try {
     console.log("the autenticated is successs");
-    console.log(req.session.token);
+    // console.log(req.session.token);
     res.status(201).json({ success: "the route is autehnthicated" });
   } catch (error) {
     console.log("the autenticated is failed");
@@ -240,8 +211,6 @@ export const addElements = (req: Request, res: Response) => {
 
 export const logOut = (req: Request, res: Response) => {
   try {
-    console.log("logout");
-    console.log("session", req.session.token);
     req.session.destroy(function (err) {
       if (err) {
         console.log("error", err);
@@ -257,13 +226,12 @@ export const logOut = (req: Request, res: Response) => {
   }
 };
 
-export const resetPassword = async(req: Request, res: Response) => {
+export const resetPassword = async (req: Request, res: Response) => {
   try {
-    const {email} = req.body;
-    console.log("email", email);
-    const user = await UserModel.findOne({email});
-    if(!user) {
-      res.status(400).json({error: 'The user does not exist. So signup '})
+    const { email } = req.body;
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      res.status(400).json({ error: 'The user does not exist. So signup ' })
     }
 
     const createForgetPasswordToken = crypto.randomBytes(32).toString('hex');
@@ -273,35 +241,34 @@ export const resetPassword = async(req: Request, res: Response) => {
     //creating the hashing password
 
     const hashForgotPassword = crypto.createHmac('sha256', secret).update(createForgetPasswordToken).digest('hex');
-    console.log('hashForgotPassword', hashForgotPassword);
     const transporter = nodemailer.createTransport({
       service: "gmail",
       host: "smtp.gmail.com",
       port: 587,
       secure: false,
       auth: {
-          user: process.env.GMAIL,
-          pass: process.env.GOOGLE_PASSWORD, // the app password Not your gmail password
+        user: process.env.GMAIL,
+        pass: process.env.GOOGLE_PASSWORD, // the app password Not your gmail password
       },
-  });
+    });
 
-  const resetUrl = `http://localhost:3000/reset-password?userId=${user?._id}&token=${hashForgotPassword}&expiry=${tokenExpiry}`
+    const resetUrl = `http://localhost:3000/reset-password?userId=${user?._id}&token=${hashForgotPassword}&expiry=${tokenExpiry}`
 
-  const mailOptions = {
-    to: email,
-    from: process.env.GMAIL,
-    subject: 'Password Reset Request',
-    text: `
+    const mailOptions = {
+      to: email,
+      from: process.env.GMAIL,
+      subject: 'Password Reset Request',
+      text: `
       <p>Hello,</p>
         <p>Click the link below to reset your password:</p>
         <a href="${resetUrl}" target="_blank">${resetUrl}</a>
         <p>This link will expire in 10 minutes.</p>
     `
-  };
+    };
 
-  const successInfo = await transporter.sendMail(mailOptions);
-  res.status(201).json({ success: true })
+    const successInfo = await transporter.sendMail(mailOptions);
+    res.status(201).json({ success: true })
   } catch (error) {
-    
+
   }
 }
