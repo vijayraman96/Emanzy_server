@@ -1,7 +1,7 @@
 
 
   const HttpCode = {
-    OK: 200,
+    SUCCESS: 200,
     CREATED: 201,
     BAD_REQUEST: 400,
     NOT_FOUND: 404,
@@ -20,7 +20,14 @@
     invalidPassword: 'Invalid password.',
     internalError: 'An error occurred while processing your request.',
     userExist: "User already exist",
-    userNotExist: "User not exist"
+    userNotExist: "User not exist",
+    categoryExist: "The Category already exits",
+    parentCategoryNotFound: "Parent Category not found",
+    noCategoryFound: "No Category found",
+    noChildCategoryFound: "No Child  Category found",
+    successfullyRetrievedChildCategories: "No category found",
+    productExist: "Product already exist",
+    allProductsFetched: "All products fetched",
   };
 
   export { HttpCode, ResponseMessage }

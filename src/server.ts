@@ -3,11 +3,14 @@ import dotenv from "dotenv";
 import express from 'express';
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import userRoute from './routes/user.routes';
 import bodyParser from "body-parser";
+import userRoute from './routes/user.routes';
+import categoryRoute from './routes/category.routes';
+import productRoute from './routes/product.routes';
 import cors, { CorsOptions } from 'cors';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
+
 
 
 dotenv.config();
@@ -59,6 +62,8 @@ app.use(bodyParser.json());
 
 
 app.use('/auth', userRoute);
+app.use('/category', categoryRoute);
+app.use('/product', productRoute);
 
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
